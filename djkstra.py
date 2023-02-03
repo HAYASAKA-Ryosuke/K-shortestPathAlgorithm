@@ -4,23 +4,27 @@ import heapq
 def find_cheapest_price(flights, src, dst):
     pq = [(0, src)]
     min_cost = {}
+    prev = {}
     for flight in flights:
         min_cost[flight[0]] = float('inf')
         min_cost[flight[1]] = float('inf')
+        prev[flight[0]] = None
+        prev[flight[1]] = None
 
     min_cost[src] = 0
     
     while pq:
         cost, city = heapq.heappop(pq)
         if city == dst:
-            return cost, min_cost
+            return cost, prev
         for flight in flights:
             if flight[0] == city:
                 new_cost = cost + flight[2]
                 if new_cost < min_cost[flight[1]]:
                     min_cost[flight[1]] = new_cost
                     heapq.heappush(pq, ((new_cost, flight[1],)))
-    return -1, min_cost
+                    prev[flight[1]] = flight[0]
+    return -1, prev
 
 # flights[i] = [fromi, toi, pricei]
 
