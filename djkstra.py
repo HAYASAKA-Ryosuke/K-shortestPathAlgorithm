@@ -4,27 +4,36 @@ import heapq
 def find_cheapest_price(flights, src, dst):
     pq = [(0, src)]
     min_cost = {}
-    prev = {}
+    prevs = {}
     for flight in flights:
         min_cost[flight[0]] = float('inf')
         min_cost[flight[1]] = float('inf')
-        prev[flight[0]] = None
-        prev[flight[1]] = None
+        prevs[flight[0]] = None
+        prevs[flight[1]] = None
 
     min_cost[src] = 0
     
     while pq:
         cost, city = heapq.heappop(pq)
         if city == dst:
-            return cost, prev
+            return cost, prevs
         for flight in flights:
             if flight[0] == city:
                 new_cost = cost + flight[2]
                 if new_cost < min_cost[flight[1]]:
                     min_cost[flight[1]] = new_cost
                     heapq.heappush(pq, ((new_cost, flight[1],)))
-                    prev[flight[1]] = flight[0]
-    return -1, prev
+                    prevs[flight[1]] = flight[0]
+    return -1, prevs
+
+def restore_route(src, dst, prevs):
+    result = [dst]
+    while True:
+        dst = prevs[dst]
+        result.append(dst)
+        if dst == src:
+            break
+    return list(reversed(result))
 
 # flights[i] = [fromi, toi, pricei]
 
@@ -57,5 +66,11 @@ flights = [
   ['h', 'f', 3],
 ]
 
-# 都市0から都市5まで進む場合の最小値は6になる
-print(find_cheapest_price(flights, 'a', 'h'))
+
+src = 'a'
+dst = 'h'
+# 都市aから都市hまで進む場合の最小値は12になる
+cost, prevs = find_cheapest_price(flights, src, dst)
+
+
+print(f'cost: {cost}, route: {restore_route(src, dst, prevs)}')
